@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% PBCHDMRSposition(v)
+% PBCHDMRSposition(ncellid)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function dmrs_pos = PBCHDMRSposition(ncellid)
     ssb_len = 12*20;

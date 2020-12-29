@@ -229,4 +229,35 @@ for pss = 1:length(pss_indxs)
     figure; plot(pbch_eq, 'o');
     title('PBCH constellation'); xlabel('In-Phase'); ylabel('Quadrature');
     pause
+
+    %MIB decoding using 5G toolbox functions
+    v = mod(issb, 4);
+    pbchBits = nrPBCHDecode(pbch_eq, ncellid, v, 1e-2);
+    
+    polarListLength = 8;
+    [~, crcBCH, trblk, sfn4lsb, nHalfFrame, msbidxoffset] = ...
+        nrBCHDecode(pbchBits, polarListLength, 4, ncellid);
+    
+    % Display the BCH CRC and ssb index
+    disp([' BCH CRC: ' num2str(crcBCH)]);
+    disp([' SSB index: ' num2str(v)]);
+
+    k_SSB = msbidxoffset * 16;
+    commonSCSs = [15 30];
+    
+    % Create a structure of MIB fields from the decoded MIB bits. The BCH
+    % transport block 'trblk' is the RRC message BCCH-BCH-Message, consisting
+    % of a leading 0 bit then 23 bits corresponding to the MIB
+    mib.NFrame = bi2de([trblk(2:7); sfn4lsb] .','left-msb');
+    mib.SubcarrierSpacingCommon = commonSCSs(trblk(8) + 1);
+    mib.k_SSB = k_SSB + bi2de(trblk(9:12).','left-msb');
+    mib.DMRSTypeAPosition = 2 + trblk(13);
+    mib.PDCCHConfigSIB1 = bi2de(trblk(14:21).','left-msb');
+    mib.CellBarred = trblk(22);
+    mib.IntraFreqReselection = trblk(23);
+
+    % Display the MIB structure
+    disp(' BCH/MIB Content:')
+    disp(mib);
+    pause
 end
