@@ -5,7 +5,6 @@ do_disturbance = 0;   %add disturbance to signal
 do_repeat = 0;        %repeat signal 5 times
 do_CFO = 1;           %do signal corrections
 
-
 if (signal_choice == 1)
     load('Signals/NR_DL_2159.91MHz_10MHz.mat'); %ncellid = 440
     nfft = 1024;
@@ -17,7 +16,7 @@ if (signal_choice == 1)
     sym_len1 = nfft + CPlen1;
     sym_len2 = nfft + CPlen2;
     threshold = 60; %
-    ssb_offset = -48; %SSB position related to center subcarriers
+    ssb_offset = -48; %SSB position related to center subcarrier
 %For generated signals we have one frame lasting 10 ms
 %Since CP autocorrelation is calculated for 4 frames, option do_repeat should be set to 1
 elseif (signal_choice == 2)
@@ -66,7 +65,7 @@ end
 
 N = length(waveform);
 
-plot_freqbins(waveform(1:nfft*2), 1024);
+plot_iq(waveform, 100);
 plot_freq(waveform, sample_rate); title('Captured signal spectrum');
 figure; pwelch(waveform,2048,2048-1024,2048,sample_rate,'centered');
 figure; f = sample_rate/2048*(-1024:1023); spectrogram(waveform,2048,1024,f,sample_rate); pause
@@ -125,7 +124,7 @@ if (do_CFO)
     npeak = 50;
     
     %find a few max peaks
-    cp_pos = zeros(1, 20);
+    cp_pos = zeros(1, npeak);
     for n = 1:npeak
         [aa, cp_pos(n)] = max(ccCP);
         %don't take indexes from beyond array length
@@ -229,7 +228,7 @@ for pss = 1:length(pss_indxs)
     figure; plot(pbch_eq, 'o');
     title('PBCH constellation'); xlabel('In-Phase'); ylabel('Quadrature');
     pause
-
+    
     %MIB decoding using 5G toolbox functions
     v = mod(issb, 4);
     pbchBits = nrPBCHDecode(pbch_eq, ncellid, v, 1e-2);
